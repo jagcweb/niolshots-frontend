@@ -1,0 +1,89 @@
+@import '../../../styles.css'; // Si usas un CSS global
+
+.sidebar-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+.sidebar-header h2 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+#tournament-search {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  outline: none;
+  transition: var(--transition);
+}
+#tournament-search:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(26, 120, 207, 0.2);
+}
+.tournament-list {
+  padding: 0.75rem;
+  flex: 1;
+  overflow-y: auto;
+}
+.tournament-item {
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.tournament-item:hover {
+  background-color: rgba(26, 120, 207, 0.1);
+}
+.tournament-item.active {
+  background-color: rgba(26, 120, 207, 0.15);
+  font-weight: 500;
+}
+.tournament-logo {
+  width: 24px;
+  height: 24px;
+  background-color: #ddd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+}
+.tournament-item .tournament-favorite {
+  margin-left: 8px;
+  color: #999;
+  transition: all 0.2s ease;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tournament-item .tournament-favorite:hover {
+  transform: scale(1.2);
+}
+.tournament-item .tournament-favorite .fas {
+  color: #ff4757;
+}
+.tournament-item.favorite {
+  background-color: rgba(255, 71, 87, 0.05);
+}
+.loading-spinner, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+  color: var(--primary-color);
+  gap: 1rem;
+}
+.loading-spinner i, .empty-state i {
+  font-size: 2rem;
+}

@@ -1,0 +1,71 @@
+<div class="sidebar">
+  <!-- Sidebar Header -->
+  <div class="sidebar-header">
+    <h3>
+      <i class="fas fa-trophy"></i>
+      Torneos
+    </h3>
+    <input 
+      type="text"
+      id="tournament-search"
+      class="tournament-search"
+      placeholder="Buscar torneo..."
+      [(ngModel)]="searchText"
+      (input)="onSearch(searchText)">
+  </div>
+
+  <!-- Tournament List -->
+  <div class="tournament-list" id="tournament-list">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Cargando torneos...</span>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!loading && filteredTournaments.length === 0 && !searchText" class="empty-state">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>No hay torneos disponibles</span>
+      <button class="retry-btn" (click)="refreshTournaments()">Reintentar</button>
+    </div>
+
+    <!-- No Search Results -->
+    <div *ngIf="!loading && filteredTournaments.length === 0 && searchText" class="empty-state">
+      <i class="fas fa-search"></i>
+      <span>No se encontraron torneos</span>
+    </div>
+
+    <!-- Tournament Items -->
+    <div *ngIf="!loading && filteredTournaments.length > 0">
+      <div *ngFor="let tournament of filteredTournaments" 
+           class="tournament-item"
+           [class.active]="isSelected(tournament.id)"
+           [class.favorite]="isFavorite(tournament.name)"
+           (click)="selectTournament(tournament.id)">
+        
+        <!-- Tournament Logo / Flag -->
+        <div class="tournament-logo" [innerHTML]="getCountryFlagHtml(tournament.country, tournament.name)"></div>
+        
+        <!-- Tournament Info -->
+        <div class="tournament-info">
+          <div class="tournament-name">{{ getTournamentDisplayName(tournament.name) }}</div>
+        </div>
+        
+        <!-- Favorite Button -->
+        <div class="tournament-favorite" 
+             [attr.data-tournament]="tournament.name"
+             (click)="toggleFavorite(tournament.name, $event)">
+          <i class="{{ isFavorite(tournament.name) ? 'fas' : 'far' }} fa-heart"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clear All Selection Button -->
+  <div class="sidebar-footer" *ngIf="selectedTournamentId">
+    <button class="clear-selection-btn" (click)="selectTournament(null)">
+      <i class="fas fa-times"></i>
+      Mostrar todos los torneos
+    </button>
+  </div>
+</div>

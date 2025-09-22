@@ -1,0 +1,143 @@
+<!-- Vista principal de partidos -->
+<div id="matches-view">
+  <!-- Header with Date Navigation -->
+  <div class="matches-header">
+    <!-- Match Filters -->
+    <div class="match-filters">
+      <button class="filter-btn" [class.active]="filterType === 'all'" (click)="setFilter('all')">
+        Todos
+      </button>
+      <button class="filter-btn" [class.active]="filterType === 'live'" (click)="setFilter('live')">
+        En directo
+      </button>
+      <button class="filter-btn" [class.active]="filterType === 'upcoming'" (click)="setFilter('upcoming')">
+        Próximos
+      </button>
+      <button class="filter-btn" [class.active]="filterType === 'finished'" (click)="setFilter('finished')">
+        Finalizados
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="match-search" style="width: 100%;">
+    <div class="search-input-container">
+      <i class="fas fa-search search-icon"></i>
+      <input 
+        type="text" 
+        id="match-search" 
+        placeholder="Buscar partido, liga..." 
+        class="modern-search"
+        [(ngModel)]="searchText" 
+        (input)="onSearch(searchText)">
+      <button 
+        class="clear-search-btn" 
+        *ngIf="searchText"
+        id="clear-search-btn"
+        title="Limpiar búsqueda" 
+        (click)="searchText = ''; onSearch('')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Matches Container -->
+  <div class="matches-container" id="matches-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Cargando partidos...</span>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && filteredMatches.length === 0" class="empty-state">
+      <i class="fas fa-futbol"></i>
+      <span>No hay partidos disponibles para esta fecha</span>
+    </div>
+
+    <!-- Matches grouped by tournament -->
+    <ng-container *ngIf="!loading && filteredMatches.length > 0">
+      <ng-container *ngFor="let group of getGroupedMatches()">
+        <!-- Tournament Header -->
+        <div class="tournament-header" [class.favorite-tournament]="isFavorite(group.name)">
+          <div class="tournament-header-icon" [innerHTML]="getCountryFlagHtml(group.country)"></div>
+          <div class="favorite-icon" 
+               [class.active]="isFavorite(group.name)"
+               (click)="toggleFavorite(group.name, $event)">
+            <i class="{{ isFavorite(group.name) ? 'fas' : 'far' }} fa-heart"></i>
+          </div>
+          <div class="tournament-header-info">
+            <h3 class="tournament-header-name">{{ getTournamentDisplayName(group.name) }}</h3>
+            <span class="tournament-header-country" *ngIf="group.country">
+              {{ getCountryDisplayName(group.country) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Matches Grid -->
+        <div class="matches-group">
+          <div *ngFor="let match of group.matches" 
+               class="match-card"
+               (click)="selectMatch(match.id)">
+            
+            <!-- Match Card Header with Time/Status -->
+            <div class="match-card-header"
+                 [ngClass]="{
+                   'match-header-live': match.status.type === 'inprogress',
+                   'match-header-finished': match.status.type === 'finished'
+                 }">
+              <div class="match-time">{{ getMatchTime(match) }}</div>
+            </div>
+
+            <!-- Match Card Content -->
+            <div class="match-card-content">
+              <!-- Teams and Score -->
+              <div class="match-teams">
+                <!-- Home Team -->
+                <div class="team-info">
+                  <div class="team-logo">
+                    <img *ngIf="match.homeTeam?.id"
+                         [src]="'https://img.sofascore.com/api/v1/team/' + match.homeTeam.id + '/image'"
+                         [alt]="match.homeTeam.name"
+                         class="team-logo-img"
+                         loading="lazy"
+                         (error)="onImgError($event)">
+                    <span *ngIf="!match.homeTeam?.id">{{ match.homeTeam?.name ? match.homeTeam.name[0] : '?' }}</span>
+                  </div>
+                  <div class="team-name">{{ match.homeTeam?.name || 'Local' }}</div>
+                </div>
+
+                <!-- Score -->
+                <div class="match-score">
+                  <div class="score">{{ match.status.type === 'notstarted' ? '-' : (match.homeScore?.current || 0) }}</div>
+                  <div class="match-separator">:</div>
+                  <div class="score">{{ match.status.type === 'notstarted' ? '-' : (match.awayScore?.current || 0) }}</div>
+                </div>
+
+                <!-- Away Team -->
+                <div class="team-info away-team">
+                  <div class="team-logo">
+                    <img *ngIf="match.awayTeam?.id"
+                         [src]="'https://img.sofascore.com/api/v1/team/' + match.awayTeam.id + '/image'"
+                         [alt]="match.awayTeam.name"
+                         class="team-logo-img"
+                         loading="lazy"
+                         (error)="onImgError($event)">
+                    <span *ngIf="!match.awayTeam?.id">{{ match.awayTeam?.name ? match.awayTeam.name[0] : '?' }}</span>
+                  </div>
+                  <div class="team-name">{{ match.awayTeam?.name || 'Visitante' }}</div>
+                </div>
+              </div>
+
+              <!-- Match Status Indicator -->
+              <div class="match-status-indicator"
+                   [ngClass]="{'live-indicator': match.status.type === 'inprogress'}">
+                {{ getMatchStatus(match) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

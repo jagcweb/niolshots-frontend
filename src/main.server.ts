@@ -1,8 +1,14 @@
-import { BootstrapContext, bootstrapApplication } from '@angular/platform-browser';
-import { App } from './app/app';
-import { config } from './app/app.config.server';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import { provideRouter } from '@angular/router';
+import { routes } from './app/app.routes';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 
-const bootstrap = (context: BootstrapContext) =>
-    bootstrapApplication(App, config, context);
-
-export default bootstrap;
+export default function(context: any) {
+  return bootstrapApplication(AppComponent, {
+    providers: [
+      provideRouter(routes),
+      provideHttpClient(withFetch())
+    ]
+  }, context);
+}

@@ -1,0 +1,341 @@
+<div id="match-detail-view">
+  <div class="match-detail-header">
+    <button (click)="goBack()" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Volver a partidos
+    </button>
+    <h2>{{ matchTitle }}</h2>
+  </div>
+
+  <div class="match-info-container">
+    <!-- Match Scoreboard -->
+    <div class="match-scoreboard" [style.background]="scoreboardGradient">
+      <div class="team home-team">
+        <div class="team-logo home-logo">
+          <img 
+            *ngIf="homeTeamLogoUrl; else homeInitial"
+            [src]="homeTeamLogoUrl" 
+            [alt]="homeTeamName" 
+            class="team-logo-img" 
+            loading="lazy"
+            (error)="onImgError($event, 'home')">
+          <ng-template #homeInitial>
+            <span class="fallback-logo">{{ homeTeamInitial }}</span>
+          </ng-template>
+        </div>
+        <h3 class="team-name">{{ homeTeamName }}</h3>
+        <div class="score">{{ homeScore }}</div>
+      </div>
+      
+      <div class="match-status">
+        <div class="match-time">{{ matchTime }}</div>
+        <div class="match-state">{{ matchState }}</div>
+      </div>
+      
+      <div class="team away-team">
+        <div class="team-logo away-logo">
+          <img 
+            *ngIf="awayTeamLogoUrl; else awayInitial"
+            [src]="awayTeamLogoUrl" 
+            [alt]="awayTeamName" 
+            class="team-logo-img" 
+            loading="lazy"
+            (error)="onImgError($event, 'away')">
+          <ng-template #awayInitial>
+            <span class="fallback-logo">{{ awayTeamInitial }}</span>
+          </ng-template>
+        </div>
+        <h3 class="team-name">{{ awayTeamName }}</h3>
+        <div class="score">{{ awayScore }}</div>
+      </div>
+    </div>
+
+    <div class="match-tabs">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'stats'"
+        (click)="setTab('stats')">
+        Estadísticas
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'events'"
+        (click)="setTab('events')">
+        Est. Individuales
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'lineup'"
+        (click)="setTab('lineup')">
+        Alineaciones
+      </button>
+    </div>
+
+    <!-- Stats Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'stats'">
+      <div class="stats-comparison">
+        <div *ngIf="loading" class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>Cargando estadísticas...</span>
+        </div>
+        
+        <div *ngIf="!loading" class="stats-list">
+          <div 
+            *ngFor="let stat of statsData; trackBy: trackByTime" 
+            class="stat-item">
+            <div class="stat-values">
+              <div class="home-value">{{ stat.isPercentage ? (stat.home + '%') : stat.home }}</div>
+              <div class="stat-label">{{ stat.label }}</div>
+              <div class="away-value">{{ stat.isPercentage ? (stat.away + '%') : stat.away }}</div>
+            </div>
+            <div class="stat-bars">
+              <div class="stat-bar-container">
+                <div 
+                  class="stat-bar home-bar" 
+                  [style.width.%]="calculateBarWidth(stat.home, stat.away, stat.isPercentage).homeWidth"
+                  [style.background-color]="stat.homeColor">
+                </div>
+                <div 
+                  class="stat-bar away-bar" 
+                  [style.width.%]="calculateBarWidth(stat.home, stat.away, stat.isPercentage).awayWidth"
+                  [style.background-color]="stat.awayColor">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shots Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'shots'">
+      <div *ngIf="shotsData.length === 0" class="empty-state">
+        <i class="fas fa-futbol"></i>
+        <span>No hay datos de tiros disponibles</span>
+      </div>
+      <div *ngIf="shotsData.length > 0" class="pitch-container">
+        <div class="pitch">
+          <div 
+            *ngFor="let shot of shotsData; trackBy: trackByTime"
+            class="shot-marker" 
+            [style.left.%]="(shot.x || 0) * 100"
+            [style.top.%]="(shot.y || 0) * 100"
+            [style.background]="shot.isHome ? homeTeamColor : awayTeamColor"
+            [title]="getPlayerName(shot) + ' (' + (shot.shotType || '') + ')'">
+          </div>
+        </div>
+        <div class="shot-list">
+          <div 
+            *ngFor="let shot of shotsData; trackBy: trackByTime" 
+            class="shot-item">
+            <span class="shot-time">{{ shot.time }}'</span>
+            <span class="shot-player">{{ getPlayerName(shot) }}</span>
+            <span class="shot-type">{{ shot.shotType }}</span>
+            <span 
+              class="shot-team" 
+              [style.color]="shot.isHome ? homeTeamColor : awayTeamColor">
+              {{ shot.isHome ? homeTeamName : awayTeamName }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Events Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'events'">
+      <div class="events-selector">
+        <select 
+          class="event-type-dropdown"
+          [(ngModel)]="selectedEventType">
+          <option [value]="DataType.SHOTS_GOALS">Tiros y Goles</option>
+          <option [value]="DataType.FOULS_CARDS">Faltas y Tarjetas</option>
+          <option [value]="DataType.SAVES">Paradas</option>
+        </select>
+      </div>
+
+      
+      <div class="events-container">
+        <div *ngIf="selectedEventType === DataType.SHOTS_GOALS || selectedEventType === DataType.FOULS_CARDS || selectedEventType === DataType.SAVES" 
+             class="shots-table-wrapper">
+          
+          <!-- Search Input -->
+          <div class="shots-table-search" [class.has-text]="searchQuery.length > 0">
+            <div class="search-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <input 
+              type="text" 
+              placeholder="Buscar por nombre de jugador..."
+              autocomplete="off"
+              [value]="searchQuery"
+              (input)="onSearchQueryChange($any($event.target).value)">
+            <button 
+              type="button" 
+              class="search-clear" 
+              aria-label="Limpiar búsqueda"
+              (click)="clearSearch()">
+              ×
+            </button>
+            <div class="search-results" [class.has-results]="searchQuery.length > 0">
+              {{ searchResultsText }}
+            </div>
+          </div>
+
+          <!-- No Events Message -->
+          <div *ngIf="filteredEvents.length === 0 && !searchQuery" class="empty-state">
+            <i class="fas" 
+               [class.fa-futbol]="selectedEventType === DataType.SHOTS_GOALS"
+               [class.fa-hand]="selectedEventType === DataType.FOULS_CARDS || selectedEventType === DataType.SAVES">
+            </i>
+            <span>
+              No hay datos de 
+              <span *ngIf="selectedEventType === DataType.SHOTS_GOALS">tiros</span>
+              <span *ngIf="selectedEventType === DataType.FOULS_CARDS">faltas</span>
+              <span *ngIf="selectedEventType === DataType.SAVES">paradas</span>
+              disponibles
+            </span>
+          </div>
+
+          <!-- Shots and Goals Table -->
+          <div *ngIf="selectedEventType === DataType.SHOTS_GOALS && filteredEvents.length > 0" 
+               class="shots-table-container">
+            <table class="shots-table">
+              <thead>
+                <tr>
+                  <th class="col-time">Min</th>
+                  <th class="col-team">Equipo</th>
+                  <th class="col-player">Jugador</th>
+                  <th class="col-type">Tipo</th>
+                  <th class="col-xg">xG</th>
+                  <th class="col-body">Parte</th>
+                  <th class="col-assist">Asistencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr 
+                  *ngFor="let shot of filteredEvents; trackBy: trackByTime"
+                  [class.home-row]="shot.isHome"
+                  [class.away-row]="!shot.isHome"
+                  [class.goal-row]="isGoalRow(shot.shotType)"
+                  [class.no-match-row]="searchQuery && !getPlayerName(shot).toLowerCase().includes(searchQuery.toLowerCase()) && !getAssistPlayerName(shot).toLowerCase().includes(searchQuery.toLowerCase())">
+                  <td class="col-time" [style.border-left]="'3px solid ' + (shot.isHome ? homeTeamColor : awayTeamColor)">
+                    <span class="time-badge">{{ shot.time }}'</span>
+                  </td>
+                  <td class="col-team">
+                    <span>{{ shot.isHome ? homeTeamName : awayTeamName }}</span>
+                  </td>
+                  <td class="col-player">
+                    <span 
+                      class="player-name"
+                      style="color: #222;"
+                      [innerHTML]="highlightText(getPlayerName(shot), searchQuery)">
+                    </span>
+                  </td>
+                  <td class="col-type">
+                    <span class="shot-type">{{ getShotTypeText(shot.shotType) }}</span>
+                  </td>
+                  <td class="col-xg">
+                    <span class="xg-value" *ngIf="getXGValue(shot) !== '-'">{{ getXGValue(shot) }}</span>
+                    <span *ngIf="getXGValue(shot) === '-'">-</span>
+                  </td>
+                  <td class="col-body">{{ getBodyPartText(shot.bodyPart) }}</td>
+                  <td class="col-assist">
+                    <span 
+                      *ngIf="getAssistPlayerName(shot) !== '-'"
+                      [innerHTML]="highlightText(getAssistPlayerName(shot), searchQuery)">
+                    </span>
+                    <span *ngIf="getAssistPlayerName(shot) === '-'">-</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Fouls and Cards Table -->
+          <div *ngIf="selectedEventType === DataType.FOULS_CARDS && filteredEvents.length > 0" 
+               class="shots-table-container">
+            <table class="shots-table">
+              <thead>
+                <tr>
+                  <th class="col-time">Min</th>
+                  <th class="col-player">Jugador</th>
+                  <th class="col-type">Tipo</th>
+                  <th class="col-details">Detalles</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr 
+                  *ngFor="let foul of filteredEvents; trackBy: trackByTime"
+                  [class.home-row]="foul.isHome || foul.team === 'home'"
+                  [class.away-row]="!foul.isHome && foul.team !== 'home'"
+                  [class.no-match-row]="searchQuery && !getPlayerName(foul).toLowerCase().includes(searchQuery.toLowerCase())">
+                  <td class="col-time">
+                    <span class="time-badge">{{ foul.time }}'</span>
+                  </td>
+                  <td class="col-player">
+                    <span 
+                      class="player-name"
+                      [innerHTML]="highlightText(getPlayerName(foul), searchQuery)">
+                    </span>
+                  </td>
+                  <td class="col-type">
+                    <span class="foul-type">{{ getFoulTypeText(foul.foulType) }}</span>
+                  </td>
+                  <td class="col-details">{{ getFoulDetails(foul) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Saves Table -->
+          <div *ngIf="selectedEventType === DataType.SAVES && filteredEvents.length > 0" 
+               class="shots-table-container">
+            <table class="shots-table">
+              <thead>
+                <tr>
+                  <th class="col-time">Min</th>
+                  <th class="col-player">Portero</th>
+                  <th class="col-type">Tipo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr 
+                  *ngFor="let save of filteredEvents; trackBy: trackByTime"
+                  [class.home-row]="save.isHome || save.team === 'home'"
+                  [class.away-row]="!save.isHome && save.team !== 'home'"
+                  [class.no-match-row]="searchQuery && !getPlayerName(save).toLowerCase().includes(searchQuery.toLowerCase())">
+                  <td class="col-time">
+                    <span class="time-badge">{{ save.time }}'</span>
+                  </td>
+                  <td class="col-player">
+                    <span 
+                      class="player-name"
+                      [innerHTML]="highlightText(getPlayerName(save), searchQuery)">
+                    </span>
+                  </td>
+                  <td class="col-type">
+                    <span class="save-type">🧤 {{ getSaveTypeText(save.saveType) }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lineup Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'lineup'">
+      <div class="lineups-container">
+        <div class="team-lineup home-lineup">
+          <!-- Home team lineup -->
+        </div>
+        <div class="team-lineup away-lineup">
+          <!-- Away team lineup -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

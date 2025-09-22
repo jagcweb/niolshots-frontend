@@ -1,0 +1,71 @@
+<!-- Match Detail Events Component Template -->
+<div class="match-events-container">
+  <!-- Event Type Selector -->
+  <div class="event-filter-section">
+    <label for="event-filter-select" class="filter-label">Filtrar eventos:</label>
+    <select 
+      id="event-filter-select"
+      class="event-filter-select"
+      [(ngModel)]="selectedEventFilter"
+      (change)="onFilterChange()">
+      <option value="all">Todos los eventos</option>
+      <option value="goals">Solo goles</option>
+      <option value="cards">Tarjetas</option>
+      <option value="fouls">Faltas</option>
+      <option value="saves">Paradas</option>
+    </select>
+  </div>
+
+  <!-- Events Timeline -->
+  <div class="events-timeline" *ngIf="filteredEvents && filteredEvents.length > 0">
+    <div 
+      *ngFor="let event of filteredEvents; trackBy: trackByEventId"
+      class="event-timeline-item"
+      [class]="getEventCssClass(event)">
+      
+      <!-- Event Time -->
+      <div class="event-time-marker">
+        <span class="event-minute">{{ event.minute || event.time }}'</span>
+        <div class="event-type-indicator" [class]="getEventTypeClass(event)">
+          <i class="fas" [class]="getEventIcon(event)"></i>
+        </div>
+      </div>
+
+      <!-- Event Details -->
+      <div class="event-details">
+        <div class="event-primary-info">
+          <span class="player-name">{{ event.playerName || event.player?.name }}</span>
+          <span class="event-description">{{ getEventDescription(event) }}</span>
+        </div>
+        
+        <div class="event-secondary-info" *ngIf="hasSecondaryInfo(event)">
+          <span class="team-indicator" [class]="event.team + '-team'">
+            {{ event.team === 'home' ? 'Local' : 'Visitante' }}
+          </span>
+          <span class="additional-info" *ngIf="event.additionalInfo">
+            {{ event.additionalInfo }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-events-state" *ngIf="!filteredEvents || filteredEvents.length === 0">
+    <div class="empty-state-icon">
+      <i class="fas fa-calendar-times"></i>
+    </div>
+    <div class="empty-state-message">
+      <h4>No hay eventos para mostrar</h4>
+      <p>No se encontraron eventos que coincidan con el filtro seleccionado.</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="events-loading" *ngIf="loading">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Cargando eventos del partido...</span>
+    </div>
+  </div>
+</div>

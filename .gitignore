@@ -1,4 +1,4 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # Compiled output
 /dist
@@ -6,13 +6,11 @@
 /out-tsc
 /bazel-out
 
-# Node
-/node_modules
-npm-debug.log
-yarn-error.log
+# Node modules
+node_modules/
 
 # IDEs and editors
-.idea/
+/.idea
 .project
 .classpath
 .c9/
@@ -30,7 +28,7 @@ yarn-error.log
 
 # Miscellaneous
 /.angular/cache
-.sass-cache/
+/.sass-cache
 /connect.lock
 /coverage
 /libpeerconnection.log
@@ -40,3 +38,144 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Angular specific
+/.angular
+/e2e/src/*.js
+/e2e/src/*.map
+
+# Build artifacts
+*.tgz
+*.tar.gz
+
+# Dependencies
+/node_modules
+/bower_components
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Angular CLI
+/.angular/cache
+.angular/
+
+# Testing
+/coverage
+*.lcov
+/karma-coverage
+/karma-coverage-remap
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Deployment platforms
+.vercel
+.netlify/
+.firebase/
+.surge/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Local development
+.local
+
+# Temporary files
+tmp/
+temp/
+
+# Storybook build outputs
+.out
+.storybook-out
+storybook-static
+
+# Angular Universal
+.angular/
+
+# Angular build artifacts
+*.metadata.json
+
+# webpack-bundle-analyzer
+webpack-bundle-analyzer-report.html
+
+# Capacitor (if using Ionic)
+.capacitor/
+
+# Cordova (if using)
+platforms/
+plugins/
+
+# PWA (if enabled)
+/ngsw-config.json
+/manifest.json
+
+# Generated documentation
+/documentation
+/compodoc
+
+# i18n
+*.xlf
+*.xliff
+
+# Cypress
+/cypress/videos/
+/cypress/screenshots/
+/cypress/downloads/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Jest
+coverage/
+
+# Husky
+.husky/_

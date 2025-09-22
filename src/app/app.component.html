@@ -1,0 +1,50 @@
+<div class="app-container">
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-container">
+      <img src="icon3.png" alt="Logo" class="logo-icon" width="32" height="32">
+      <h1>NiolShots</h1>
+    </div>
+    <div class="date-selector">
+      <button class="date-nav-btn" (click)="goToPreviousDay()">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <span id="current-date">{{ getCurrentDateDisplay() }}</span>
+      <button class="date-nav-btn" (click)="goToNextDay()">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+    <div class="user-actions">
+      <button class="action-btn" title="Modo oscuro" (click)="toggleDarkMode()">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="action-btn" title="Limpiar caché"  (click)="clearCache()">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+      <button class="action-btn" (click)="refreshData()"><i class="fas fa-sync-alt"></i></button>
+      <button class="action-btn" (click)="openSettings()"><i class="fas fa-cog"></i></button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Side Navigation (Tournaments) -->
+    <aside class="sidebar" id="tournaments-sidebar">
+      <app-tournaments></app-tournaments>
+    </aside>
+    <!-- Main View (Router outlet for Matches/Detail) -->
+    <section class="content-area">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 NiolShots - Datos proporcionados por SofaScore API</p>
+    <div class="footer-links">
+      <a href="#">Términos y condiciones</a>
+      <a href="#">Política de privacidad</a>
+      <a href="#">Contacto</a>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,718 @@
+/* Estilos para los componentes de eventos del partido */
+
+/* Selector de tipo de evento */
+.events-selector {
+  margin-bottom: 1rem;
+  width: 100%;
+  text-align: center;
+}
+
+.event-type-dropdown {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: white;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 30px;
+  min-width: 180px;
+}
+
+.event-type-dropdown:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(26, 120, 207, 0.2);
+}
+
+/* Contenedor de eventos */
+.events-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  max-height: 600px;
+  overflow-y: auto;
+  padding: 5px;
+}
+
+/* Para pantallas más grandes, usar dos columnas */
+@media (min-width: 768px) {
+  .events-container {
+    width: 100%;
+  }
+}
+
+/* Tarjeta de evento */
+.event-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+  border-left: 4px solid #ddd;
+  margin-bottom: 8px;
+}
+
+.event-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+}
+
+/* Colores para equipos */
+.event-card.home-team {
+  border-color: var(--home-color, #1a78cf);
+}
+
+.event-card.away-team {
+  border-color: var(--away-color, #e74c3c);
+}
+
+/* Header del evento */
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  width: 100%;
+}
+
+.player-name {
+  font-weight: 600;
+  font-size: 14px;
+  flex: 2;
+}
+
+.event-type {
+  font-weight: 500;
+  font-size: 13px;
+  flex: 1;
+  text-align: center;
+  margin-right: 12px;
+}
+
+.event-time {
+  background-color: #f2f2f2;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #555;
+  min-width: 30px;
+  text-align: right;
+}
+
+/* Detalles de evento */
+.event-assist, 
+.event-details {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px dashed #eee;
+}
+
+.event-assist {
+  font-style: italic;
+  opacity: 0.8;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.event-details {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+.special-warning {
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+/* Estado vacío */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  text-align: center;
+  gap: 0.75rem;
+}
+
+.empty-state i {
+  font-size: 2rem;
+  opacity: 0.6;
+  margin-bottom: 10px;
+  display: block;
+}
+
+/* Colores específicos para eventos */
+.goal-event {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.card-yellow {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.card-red {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.save-event {
+  background-color: rgba(3, 169, 244, 0.1);
+}
+
+/* Modo oscuro */
+@media (prefers-color-scheme: dark) {
+  .event-type-dropdown {
+    background-color: #333;
+    color: #fff;
+    border-color: #555;
+  }
+  
+  .event-card {
+    background-color: #282828;
+    color: #e0e0e0;
+  }
+  
+  .event-time {
+    background-color: #3a3a3a;
+    color: #ddd;
+  }
+  
+  .event-assist, .event-details {
+    color: #bbb;
+    border-top-color: #444;
+  }
+}
+
+:root {
+  --home-color: #1a78cf;
+  --away-color: #e74c3c;
+  --home-color-rgb: 26, 120, 207; /* Equivalente RGB de #1a78cf */
+  --away-color-rgb: 231, 76, 60; /* Equivalente RGB de #e74c3c */
+}
+
+/* Para un efecto más sutil */
+.event-card.home-team:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1), 0 0 0 1px var(--home-color, #1a78cf);
+}
+
+.event-card.away-team:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1), 0 0 0 1px var(--away-color, #e74c3c);
+}
+
+/* Estilos para eventos separados por equipo */
+.events-split-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  padding: 10px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.events-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.home-column {
+  align-items: flex-start;
+}
+
+.away-column {
+  align-items: flex-end;
+}
+
+/* Ajustes para las tarjetas de eventos */
+.home-event .event-card {
+  border-left: 4px solid var(--home-color);
+  border-right: none;
+  text-align: left;
+  margin-left: 0;
+  margin-right: auto;
+  background: linear-gradient(to right, rgba(var(--home-color-rgb), 0.05), transparent);
+}
+
+.away-event .event-card {
+  border-left: none;
+  border-right: 4px solid var(--away-color);
+  text-align: right;
+  margin-left: auto;
+  margin-right: 0;
+  background: linear-gradient(to left, rgba(var(--away-color-rgb), 0.05), transparent);
+}
+
+/* Headers direccionales */
+.home-event .event-header {
+  flex-direction: row;
+}
+
+.away-event .event-header {
+  flex-direction: row-reverse;
+}
+
+.home-event .event-time {
+  margin-right: 10px;
+  margin-left: 0;
+}
+
+.away-event .event-time {
+  margin-left: 10px;
+  margin-right: 0;
+}
+
+.home-event .player-name {
+  margin-right: auto;
+  text-align: left;
+}
+
+.away-event .player-name {
+  margin-left: auto;
+  text-align: right;
+}
+
+.home-event .event-type {
+  margin-left: 10px;
+  margin-right: 0;
+}
+
+.away-event .event-type {
+  margin-right: 10px;
+  margin-left: 0;
+}
+
+/* Contenido y detalles alineados */
+.away-event .event-content,
+.away-event .event-assist,
+.away-event .event-footer,
+.away-event .event-details {
+  text-align: right;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .events-split-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .home-column,
+  .away-column {
+    width: 100%;
+  }
+  
+  .home-event .event-card,
+  .away-event .event-card {
+    width: 95%;
+    max-width: none;
+  }
+  
+  .shots-table-container {
+    border-radius: 0;
+  }
+  
+  .shots-table th,
+  .shots-table td {
+    padding: 6px 4px;
+    font-size: 12px;
+  }
+  
+  /* Ocultar columnas menos importantes en móvil */
+  .shots-table .col-body,
+  .shots-table .col-assist {
+    display: none;
+  }
+  
+  .shots-table-search {
+    flex-direction: column;
+  }
+  
+  .shots-table-search input {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+}
+
+/* Tarjetas especiales */
+.goal-event {
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.home-event .goal-event {
+  box-shadow: 0 2px 8px rgba(var(--home-color-rgb), 0.3);
+}
+
+.away-event .goal-event {
+  box-shadow: 0 2px 8px rgba(var(--away-color-rgb), 0.3);
+}
+
+/* NUEVO DISEÑO TIPO TABLA */
+.shots-table-container {
+  width: 100%;
+  overflow-x: auto;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  max-height: 400px; /* Altura reducida como solicitado */
+}
+
+/* NUEVO BUSCADOR DE NOMBRES */
+.shots-table-search {
+  display: flex;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+}
+
+.shots-table-search input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+  background-color: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.shots-table-search input:focus {
+  border-color: var(--primary-color, #1a78cf);
+  box-shadow: 0 0 0 2px rgba(26, 120, 207, 0.15);
+}
+
+.shots-table-search input::placeholder {
+  color: #999;
+}
+
+.search-icon {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  color: #666;
+}
+
+.search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #999;
+  padding: 0 8px;
+  font-size: 16px;
+  display: none; /* Se muestra con JS cuando hay texto */
+}
+
+.shots-table-search.has-text .search-clear {
+  display: block;
+}
+
+/* Destacar resultados de búsqueda */
+.highlight-match {
+  background-color: #fff3cd;
+  padding: 1px 2px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+
+.shots-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.shots-table th, 
+.shots-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.shots-table th {
+  background-color: #f0f0f0;
+  color: #333;
+  font-weight: 600;
+  text-align: center;
+}
+
+.shots-table td {
+  vertical-align: middle;
+}
+
+/* Alineación de texto */
+.shots-table .col-time,
+.shots-table .col-xg {
+  text-align: center;
+}
+
+.shots-table .col-player,
+.shots-table .col-body,
+.shots-table .col-assist {
+  text-align: left;
+}
+
+.shots-table .col-type {
+  text-align: center;
+}
+
+/* Colorear filas por equipo */
+.shots-table tr.home-row td:first-child {
+  border-left: 3px solid var(--home-color);
+}
+
+.shots-table tr.away-row td:first-child {
+  border-left: 3px solid var(--away-color);
+}
+
+/* Filas de gol */
+.shots-table tr.goal-row {
+  background-color: rgba(76, 175, 80, 0.08);
+}
+
+/* Nombres de jugadores con colores de equipo */
+.shots-table tr.home-row .player-name {
+  color: var(--home-color);
+  font-weight: 600;
+}
+
+.shots-table tr.away-row .player-name {
+  color: var(--away-color);
+  font-weight: 600;
+}
+
+/* Tiempo en círculo */
+.time-badge {
+  background-color: #f0f0f0;
+  border-radius: 12px;
+  padding: 2px 6px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #555;
+  display: inline-block;
+}
+
+/* Tipo de evento con icono */
+.shot-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.shot-icon {
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* xG formateado */
+.xg-value {
+  font-weight: 500;
+  font-family: monospace;
+  background-color: #f8f8f8;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+/* Cabecera de tabla */
+.shots-table-header {
+  text-align: center;
+  margin-bottom: 5px;
+  font-weight: 600;
+  padding: 5px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+/* Estado vacío */
+.shots-table-empty {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+}
+
+/* Resultados de búsqueda */
+.search-results {
+  margin: 5px 0;
+  padding: 8px;
+  font-size: 13px;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  display: none;
+}
+
+.search-results.has-results {
+  display: block;
+}
+
+.no-match-row {
+  display: none;
+}
+
+/* Estilos para filas de tarjetas */
+.shots-table tr.card-yellow-row {
+  background-color: rgba(255, 193, 7, 0.08);
+}
+
+.shots-table tr.card-red-row {
+  background-color: rgba(244, 67, 54, 0.08);
+}
+
+/* Estilos para filas de paradas */
+.shots-table tr.save-row {
+  background-color: rgba(3, 169, 244, 0.05);
+}
+
+/* Tipos de faltas/tarjetas */
+.foul-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* Tipos de paradas */
+.save-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* Detalles específicos */
+.col-details, .col-against {
+  color: #666;
+  font-size: 13px;
+}
+
+/* ACTUALIZADO: Estilos para el botón de refresh con mejor visibilidad */
+.refresh-match-btn {
+  background-color: #4CAF50; /* Verde para mejor visibilidad */
+  border: none;
+  border-radius: 4px; /* Menos redondeado para diferenciar del botón de volver */
+  width: auto; /* Ancho automático para adaptarse al contenido */
+  height: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: white;
+  font-size: 14px;
+  margin-left: 10px; /* Espacio desde el botón de volver */
+  transition: all 0.3s ease;
+  position: relative; /* Cambio a posición relativa */
+  top: auto;
+  right: auto;
+}
+
+.refresh-match-btn:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.refresh-match-btn:active {
+  transform: scale(0.98);
+}
+
+.refresh-match-btn.refreshing {
+  animation: spin 1s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ACTUALIZADO: Estilos para el header del detalle de partido */
+.match-detail-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  position: relative;
+}
+
+.match-detail-header h2 {
+  flex: 1;
+  margin: 0 10px;
+  font-size: 18px;
+  text-align: center;
+}
+
+/* Asegurar que los botones estén bien posicionados */
+#back-to-matches, 
+.refresh-match-btn {
+  z-index: 2; /* Asegurar que estén por encima de otros elementos */
+}
+
+/* Estilos para notificaciones */
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  max-width: 300px;
+}
+
+.notification.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.notification i {
+  font-size: 1.2rem;
+}
+
+.info-notification {
+  background-color: #f0f8ff;
+  border-left: 4px solid #1a78cf;
+}
+
+.success-notification {
+  background-color: #f0fff0;
+  border-left: 4px solid #4CAF50;
+}
+
+.error-notification {
+  background-color: #fff0f0;
+  border-left: 4px solid #e74c3c;
+}
+
+.warning-notification {
+  background-color: #ffffd0;
+  border-left: 4px solid #ff9800;
+}
+
+.info-notification i { color: #1a78cf; }
+.success-notification i { color: #4CAF50; }
+.error-notification i { color: #e74c3c; }
+.warning-notification i { color: #ff9800; }
