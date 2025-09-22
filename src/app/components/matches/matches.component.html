@@ -98,13 +98,13 @@
                   <div class="team-logo">
                     <img *ngIf="match.homeTeam?.id"
                          [src]="'https://img.sofascore.com/api/v1/team/' + match.homeTeam.id + '/image'"
-                         [alt]="match.homeTeam.name"
+                         [alt]="match.homeTeam.nameCode"
                          class="team-logo-img"
                          loading="lazy"
                          (error)="onImgError($event)">
-                    <span *ngIf="!match.homeTeam?.id">{{ match.homeTeam?.name ? match.homeTeam.name[0] : '?' }}</span>
+                    <span *ngIf="!match.homeTeam?.id">{{ match.homeTeam?.nameCode ? match.homeTeam.nameCode[0] : '?' }}</span>
                   </div>
-                  <div class="team-name">{{ match.homeTeam?.name || 'Local' }}</div>
+                  <div class="team-name">{{ match.homeTeam?.nameCode || 'Local' }}</div>
                 </div>
 
                 <!-- Score -->
@@ -119,13 +119,13 @@
                   <div class="team-logo">
                     <img *ngIf="match.awayTeam?.id"
                          [src]="'https://img.sofascore.com/api/v1/team/' + match.awayTeam.id + '/image'"
-                         [alt]="match.awayTeam.name"
+                         [alt]="match.awayTeam.nameCode"
                          class="team-logo-img"
                          loading="lazy"
                          (error)="onImgError($event)">
-                    <span *ngIf="!match.awayTeam?.id">{{ match.awayTeam?.name ? match.awayTeam.name[0] : '?' }}</span>
+                    <span *ngIf="!match.awayTeam?.id">{{ match.awayTeam?.nameCode ? match.awayTeam.nameCode[0] : '?' }}</span>
                   </div>
-                  <div class="team-name">{{ match.awayTeam?.name || 'Visitante' }}</div>
+                  <div class="team-name">{{ match.awayTeam?.nameCode || 'Visitante' }}</div>
                 </div>
               </div>
 
