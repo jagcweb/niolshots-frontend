@@ -1,7 +1,31 @@
 <!-- Vista principal de partidos -->
 <div id="matches-view">
+  <!-- Custom Loader -->
+  <div *ngIf="loading" class="niol-splash-loader">
+    <div class="particles"></div>
+    <div class="waves"></div>
+    <div class="loader-container">
+      <div class="logo-container">
+        <div class="logo"></div>
+        <div class="brand-name">NiolShots</div>
+      </div>
+      <div class="spinner"></div>
+      <div class="loader-text">Cargando partidos...</div>
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+      <div class="loading-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Header with Date Navigation -->
-  <div class="matches-header">
+  <div class="matches-header" [style.display]="loading ? 'none' : 'block'">
     <!-- Match Filters -->
     <div class="match-filters">
       <button class="filter-btn" [class.active]="filterType === 'all'" (click)="setFilter('all')">
@@ -20,7 +44,7 @@
   </div>
 
   <!-- Search Bar -->
-  <div class="match-search" style="width: 100%;">
+  <div class="match-search" [style.display]="loading ? 'none' : 'block'" style="width: 100%;">
     <div class="search-input-container">
       <i class="fas fa-search search-icon"></i>
       <input 
@@ -42,13 +66,7 @@
   </div>
 
   <!-- Matches Container -->
-  <div class="matches-container" id="matches-container">
-    <!-- Loading State -->
-    <div *ngIf="loading" class="loading-spinner">
-      <i class="fas fa-spinner fa-spin"></i>
-      <span>Cargando partidos...</span>
-    </div>
-
+  <div class="matches-container" [style.display]="loading ? 'none' : 'block'" id="matches-container">
     <!-- Empty State -->
     <div *ngIf="!loading && filteredMatches.length === 0" class="empty-state">
       <i class="fas fa-futbol"></i>

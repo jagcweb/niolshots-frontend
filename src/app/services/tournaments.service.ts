@@ -5,7 +5,7 @@ import { Tournament } from '../types/types';
 
 @Injectable({ providedIn: 'root' })
 export class TournamentsService {
-  private baseUrl = "https://www.sofascore.com/api/v1/search/suggestions/unique-tournaments?sport=football";
+  private baseUrl = "/api/tournaments";
   private cacheKey = 'cachedTournaments';
   private cacheTimestampKey = 'cachedTournamentsTimestamp';
 

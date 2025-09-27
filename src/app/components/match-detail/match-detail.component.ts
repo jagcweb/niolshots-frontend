@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StatsService } from '../../services/stats.service';
-import { MatchDetail } from '../../types/types';
+import { MatchDetail, MatchStatsDetail } from '../../types/types';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -16,7 +16,7 @@ import { DataType, StatData, ShotEvent, FoulEvent, SaveEvent } from '../../utils
 })
 export class MatchDetailComponent implements OnInit, OnDestroy {
   matchId: string | number | null = null;
-  detail: MatchDetail | null = null;
+  detail: MatchStatsDetail | null = null;
   loading = true;
   activeTab: string = 'stats';
   secondsUntilRefresh = 30;
@@ -30,11 +30,12 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
   searchQuery = '';
   filteredEvents: any[] = [];
   DataType = DataType;
+  scoreboardGradient: string = 'linear-gradient(to right, #f0f0f0, #d0d0d0)';
+  searchResultsText: string = '';
 
   private subscriptions = new Subscription();
   private refreshInterval: any;
   private timerInterval: any;
-
   private readonly cacheKey = 'matchDetailCache';
 
   constructor(
@@ -73,14 +74,34 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
     this.stopAutoRefresh();
   }
+
   loadDetails() {
     if (this.matchId !== null) {
       this.loading = true;
+      
       this.subscriptions.add(
         this.statsService.getMatchDetail(this.matchId as string | number).subscribe({
           next: (data) => {
-            this.detail = data;
-            this.cacheDetail(this.matchId as string | number, data);
+            this.detail = {
+              id: data.id || 0,
+              status: data.status || { code: 0, description: 'Unknown', type: 'notstarted' },
+              startTimestamp: data.startTimestamp || Math.floor(Date.now() / 1000),
+              homeTeam: data.homeTeam,
+              awayTeam: data.awayTeam,
+              time: data.time,
+              homeScore: data.homeScore,
+              awayScore: data.awayScore,
+              tournament: data.tournament,
+              summary: {
+                shots: data.summary?.shots || [],
+                stats: data.summary?.stats || [],
+                fouls: data.summary?.fouls || [],
+                saves: data.summary?.saves || [],
+                incidents: data.summary?.incidents || []
+              }
+            };
+            
+            this.cacheDetail(this.matchId as string | number, this.detail);
             this.loading = false;
             this.updateComputedData();
           },
@@ -100,7 +121,13 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
         this.statsService.getMatchDetail(this.matchId as string | number).subscribe({
           next: (data) => {
             if (this.detail && data.summary) {
-              this.detail.summary = data.summary;
+              this.detail.summary = {
+                shots: data.summary.shots || [],
+                stats: data.summary.stats || [],
+                fouls: data.summary.fouls || [],
+                saves: data.summary.saves || [],
+                incidents: data.summary.incidents || []
+              };
               this.updateComputedData();
             }
             this.loading = false;
@@ -115,8 +142,9 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
   }
 
   private updateComputedData() {
-    if (!this.detail) return;
-
+    if (!this.detail) {
+      return;
+    }
     this.statsData = this.calculateStatsData();
     this.shotsData = this.getShotsData();
     this.foulsData = this.getFoulsData();
@@ -146,7 +174,6 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
 
   private updateFilteredEvents() {
     let events: any[] = [];
-
     switch (this.selectedEventType) {
       case DataType.SHOTS_GOALS:
         events = this.shotsData;
@@ -173,12 +200,9 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
 
   startAutoRefresh() {
     this.stopAutoRefresh();
-
     this.timerInterval = setInterval(() => {
       this.secondsUntilRefresh--;
-      if (this.secondsUntilRefresh < 0) {
-        this.secondsUntilRefresh = 30;
-      }
+      if (this.secondsUntilRefresh < 0) this.secondsUntilRefresh = 30;
     }, 1000);
 
     this.refreshInterval = setInterval(() => {
@@ -195,14 +219,8 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
   }
 
   stopAutoRefresh() {
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
-      this.refreshInterval = null;
-    }
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-      this.timerInterval = null;
-    }
+    if (this.refreshInterval) clearInterval(this.refreshInterval);
+    if (this.timerInterval) clearInterval(this.timerInterval);
   }
 
   goBack() {
@@ -211,17 +229,26 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
   }
 
   private cacheDetail(matchId: string | number, data: MatchDetail) {
-    const cacheObj = { matchId, data, timestamp: Date.now() };
-    localStorage.setItem(this.cacheKey, JSON.stringify(cacheObj));
+    localStorage.setItem(this.cacheKey, JSON.stringify({ matchId, data, timestamp: Date.now() }));
   }
 
-  private getCachedDetail(matchId: string | number): MatchDetail | null {
+  private getCachedDetail(matchId: string | number): MatchStatsDetail | null {
     const cache = localStorage.getItem(this.cacheKey);
     if (!cache) return null;
     try {
       const parsed = JSON.parse(cache);
       if (parsed.matchId == matchId && (Date.now() - parsed.timestamp) < 60 * 60 * 1000) {
-        return parsed.data;
+        const data = parsed.data as MatchStatsDetail;
+
+        data.summary = {
+          shots: data.summary?.shots || [],
+          stats: data.summary?.stats || [],
+          fouls: data.summary?.fouls || [],
+          saves: data.summary?.saves || [],
+          incidents: data.summary?.incidents || []
+        };
+
+        return data;
       }
       return null;
     } catch {
@@ -229,63 +256,62 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ----------------------------
+  // Getters
+  // ----------------------------
   get matchTitle(): string {
-    if (!this.detail) return 'Detalles del partido';
-    return `${this.detail.homeTeam?.name || 'Local'} vs ${this.detail.awayTeam?.name || 'Visitante'}`;
+    const title = !this.detail ? 'Detalles del partido' : 
+      `${this.detail.homeTeam?.name || 'Local'} vs ${this.detail.awayTeam?.name || 'Visitante'}`;
+    return title;
   }
 
   get homeTeamName(): string {
-    return this.detail?.homeTeam?.nameCode || 'Local';
+    const name = this.detail?.homeTeam?.name || 'Local';
+    return name;
   }
 
   get awayTeamName(): string {
-    return this.detail?.awayTeam?.nameCode || 'Visitante';
+    const name = this.detail?.awayTeam?.name || 'Visitante';
+    return name;
   }
 
   get homeScore(): number {
-    return this.detail?.homeScore?.current || 0;
+    const score = typeof this.detail?.homeScore === 'number' ? this.detail.homeScore : 0;
+    return score;
   }
 
   get awayScore(): number {
-    return this.detail?.awayScore?.current || 0;
+    const score = typeof this.detail?.awayScore === 'number' ? this.detail.awayScore : 0;
+    return score;
   }
 
-get matchTime(): string {
-  if (!this.detail) return '';
-  if (this.detail.status?.type === 'inprogress') {
-    if (typeof this.detail.time?.minute === 'number') {
-      return `${this.detail.time.minute}'`;
+  get matchTime(): string {
+    if (!this.detail) return '';
+    if (this.detail.status?.type === 'inprogress') {
+      const minute = this.detail.time?.minute;
+      if (typeof minute === 'number') return `${minute}'`;
+      const periodStart = this.detail.time?.currentPeriodStartTimestamp || this.detail.statusTime?.timestamp;
+      if (periodStart) {
+        const now = Math.floor(Date.now() / 1000);
+        let calcMinute = Math.floor((now - periodStart) / 60) + 1;
+        const extraSec = this.detail.time?.extra || 0;
+        calcMinute += Math.floor(extraSec / 60);
+        return `${Math.max(calcMinute, 0)}'`;
+      }
+      return `0'`;
     }
-    const periodStart = this.detail.time?.currentPeriodStartTimestamp || this.detail.statusTime?.timestamp;
-    if (periodStart) {
-      const now = Math.floor(Date.now() / 1000);
-      let minute = Math.floor((now - periodStart) / 60) + 1;
-      const extraSec = this.detail.statusTime?.extra || this.detail.time?.extra || 0;
-      minute += Math.floor(extraSec / 60);
-      return `${Math.max(minute, 0)}'`;
-    }
-    return `0'`;
+    if (this.detail.status?.type === 'finished') return 'FT';
+    return '';
   }
-  if (this.detail.status?.type === 'finished') {
-    return 'FT';
-  }
-  if (this.detail.startTimestamp) {
-    const date = new Date(this.detail.startTimestamp * 1000);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-  return '';
-}
 
-get matchState(): string {
-  if (!this.detail) return '';
-  if (this.detail.status?.type === 'inprogress') {
-    return 'En directo';
+  get matchState(): string {
+    if (!this.detail) return '';
+    switch (this.detail.status?.type) {
+      case 'inprogress': return 'En directo';
+      case 'finished': return 'Finalizado';
+      default: return 'Programado';
+    }
   }
-  if (this.detail.status?.type === 'finished') {
-    return 'Finalizado';
-  }
-  return 'Programado';
-}
 
   get homeTeamLogoUrl(): string | null {
     return this.detail?.homeTeam?.id
@@ -300,16 +326,11 @@ get matchState(): string {
   }
 
   get homeTeamInitial(): string {
-    return this.detail?.homeTeam?.name?.[0] || '?';
+    return this.detail?.homeTeam?.slug?.[0]?.toUpperCase() || '?';
   }
 
   get awayTeamInitial(): string {
-    return this.detail?.awayTeam?.name?.[0] || '?';
-  }
-
-  get scoreboardGradient(): string {
-    if (!this.detail) return '';
-    return 'linear-gradient(to right, #1a78cf, #1a78cf)';
+    return this.detail?.awayTeam?.slug?.[0]?.toUpperCase() || '?';
   }
 
   get homeTeamColor(): string {
@@ -320,38 +341,18 @@ get matchState(): string {
     return this.detail?.awayTeam?.teamColors?.secondary || '#e74c3c';
   }
 
-  get searchResultsText(): string {
-    if (!this.searchQuery.trim()) return '';
-    const count = this.filteredEvents.length;
-    return count > 0
-      ? `Se encontraron ${count} coincidencias.`
-      : `No se encontraron coincidencias para "${this.searchQuery}".`;
-  }
-
+  // ----------------------------
+  // Stats, shots, fouls, saves
+  // ----------------------------
   private calculateStatsData(): StatData[] {
-    if (!this.detail?.summary) return [];
-
+    if (!this.detail?.summary) {
+      return [];
+    }
     const summary = this.detail.summary;
     const homeColor = this.homeTeamColor;
     const awayColor = this.awayTeamColor;
 
-    console.log('Calculating stats data with summary:', this.detail);
-
-    let homePossession = 50, awayPossession = 50;
-    if (summary.possession) {
-      homePossession = summary.possession.home ?? 50;
-      awayPossession = summary.possession.away ?? 50;
-    }
-
-    return [
-      /*{
-        label: 'Posesión',
-        home: homePossession,
-        away: awayPossession,
-        isPercentage: true,
-        homeColor,
-        awayColor
-      },*/
+    const stats = [
       {
         label: 'Tiros',
         home: summary.shots?.filter((s: any) => s.isHome).length ?? 0,
@@ -381,21 +382,20 @@ get matchState(): string {
         awayColor
       }
     ];
+
+    return stats;
   }
 
   private getShotsData(): ShotEvent[] {
-    if (!this.detail?.summary?.shots) return [];
-    return this.detail.summary.shots;
+    return this.detail?.summary?.shots ?? [];
   }
 
   private getFoulsData(): FoulEvent[] {
-    if (!this.detail?.summary?.fouls) return [];
-    return this.detail.summary.fouls;
+    return this.detail?.summary?.fouls ?? [];
   }
 
   private getSavesData(): SaveEvent[] {
-    if (!this.detail?.summary?.saves) return [];
-    return this.detail.summary.saves;
+    return this.detail?.summary?.saves ?? [];
   }
 
   calculateBarWidth(home: number, away: number, isPercentage: boolean = false): { homeWidth: number, awayWidth: number } {
@@ -403,19 +403,15 @@ get matchState(): string {
     const total = home + away;
     if (total === 0) return { homeWidth: 50, awayWidth: 50 };
     const homeWidth = Math.round((home / total) * 100);
-    const awayWidth = 100 - homeWidth;
-    return { homeWidth, awayWidth };
+    return { homeWidth, awayWidth: 100 - homeWidth };
   }
 
+  // Métodos auxiliares de visualización
   getShotTypeText(shotType: string | undefined): string {
     switch ((shotType || '').toLowerCase()) {
       case 'goal': return '⚽ Gol';
-      case 'ontarget':
-      case 'on_target':
-      case 'save': return '🎯 Tiro a puerta';
-      case 'miss':
-      case 'offtarget':
-      case 'off_target': return '❌ Tiro fuera';
+      case 'ontarget': case 'on_target': case 'save': return '🎯 Tiro a puerta';
+      case 'miss': case 'offtarget': case 'off_target': return '❌ Tiro fuera';
       default: return '❌ Tiro fuera';
     }
   }
@@ -432,10 +428,7 @@ get matchState(): string {
 
   getXGValue(shot: any): string {
     const value = shot.xG ?? shot.xg ?? shot.expected_goals ?? shot.expectedGoals;
-    if (value != null && !isNaN(parseFloat(value))) {
-      return parseFloat(value).toFixed(2);
-    }
-    return '-';
+    return value != null && !isNaN(parseFloat(value)) ? parseFloat(value).toFixed(2) : '-';
   }
 
   getFoulTypeText(foulType: string | undefined): string {
@@ -448,9 +441,7 @@ get matchState(): string {
   }
 
   getFoulDetails(foul: any): string {
-    if (foul.foulType?.toLowerCase().includes('doble amarilla')) {
-      return 'Expulsión por doble amonestación';
-    }
+    if (foul.foulType?.toLowerCase().includes('doble amarilla')) return 'Expulsión por doble amonestación';
     return foul.description || '-';
   }
 

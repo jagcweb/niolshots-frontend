@@ -6,7 +6,7 @@ import { Match, MatchApiResponse } from '../types/types';
 
 @Injectable({ providedIn: 'root' })
 export class MatchesService {
-  private matchesBaseUrl = "https://www.sofascore.com/api/v1/sport/football/scheduled-events";
+  private matchesBaseUrl = "/api/matches";
 
   constructor(private http: HttpClient) {}
 

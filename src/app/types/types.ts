@@ -250,3 +250,10 @@ export interface Incident {
   teamSide?: string;
   cardType?: string;
 }
+
+export interface MatchStatsDetail extends MatchDetail {
+  summary: MatchSummary & {
+    stats: PlayerStats[];
+    incidents: Incident[];
+  };
+}

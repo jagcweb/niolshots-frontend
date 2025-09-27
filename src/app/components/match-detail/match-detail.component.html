@@ -1,12 +1,41 @@
+<!-- Vista principal de partidos -->
 <div id="match-detail-view">
-  <div class="match-detail-header">
+  <!-- Custom Loader -->
+  <div *ngIf="loading" class="niol-splash-loader">
+    <div class="particles"></div>
+    <div class="waves"></div>
+    <div class="loader-container">
+      <div class="logo-container">
+        <div class="logo"></div>
+        <div class="brand-name">NiolShots</div>
+      </div>
+      <div class="spinner"></div>
+      <div class="loader-text">Cargando estadísticas...</div>
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+      </div>
+      <div class="loading-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="match-detail-header" [style.display]="loading ? 'none' : 'flex'">
     <button (click)="goBack()" class="back-btn">
       <i class="fas fa-arrow-left"></i> Volver a partidos
     </button>
     <h2>{{ matchTitle }}</h2>
+    <span class="autorefresh-timer" style="margin-left: 20px; font-size: 1rem;">
+      <i class="fas fa-sync-alt"></i>
+      Actualizando en {{ secondsUntilRefresh }}s
+    </span>
   </div>
 
-  <div class="match-info-container">
+  <div class="match-info-container" [style.display]="loading ? 'none' : 'block'">
     <!-- Match Scoreboard -->
     <div class="match-scoreboard" [style.background]="scoreboardGradient">
       <div class="team home-team">
@@ -73,12 +102,9 @@
     <!-- Stats Tab -->
     <div class="tab-content" *ngIf="activeTab === 'stats'">
       <div class="stats-comparison">
-        <div *ngIf="loading" class="loading-spinner">
-          <i class="fas fa-spinner fa-spin"></i>
-          <span>Cargando estadísticas...</span>
-        </div>
+        <!-- Removed old loading spinner - now uses global loader -->
         
-        <div *ngIf="!loading" class="stats-list">
+        <div class="stats-list">
           <div 
             *ngFor="let stat of statsData; trackBy: trackByTime" 
             class="stat-item">
@@ -152,7 +178,6 @@
         </select>
       </div>
 
-      
       <div class="events-container">
         <div *ngIf="selectedEventType === DataType.SHOTS_GOALS || selectedEventType === DataType.FOULS_CARDS || selectedEventType === DataType.SAVES" 
              class="shots-table-wrapper">

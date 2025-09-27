@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, ViewEncapsulation, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatchesService } from '../../services/matches.service';
 import { FavoritesService } from '../../services/favorites.service';
 import { DateService } from '../../services/date.service';
@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./matches.component.scss'],
   encapsulation: ViewEncapsulation.None,
   standalone: true,
-  imports: [CommonModule, FormsModule, MatchDetailEventsComponent]
+  imports: [CommonModule, FormsModule, MatchDetailEventsComponent, RouterModule]
 })
 export class MatchesComponent implements OnInit, OnDestroy {
   @Output() matchSelected = new EventEmitter<string | number>();
